@@ -8,19 +8,19 @@
  * @copyright  (c) 2013 S.Zares
  * @license    MIT License
  *
- * ------------------------------------
-CREATE TABLE `sessions` (
-  `session_id` varchar(24) NOT NULL,
-  `user_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `ip_address` varchar(128) DEFAULT '',
-  `user_agent` varchar(128) DEFAULT '',
-  `last_active` int(10) unsigned NOT NULL,
-  `contents` text NOT NULL,
-  PRIMARY KEY (`session_id`),
-  KEY `last_active` (`last_active`),
-  KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
----------------------------------------*/
+ * --------------------------------------
+ |  CREATE TABLE `sessions` (
+ |    `session_id` varchar(24) NOT NULL,
+ |    `user_id` int(10) unsigned NOT NULL DEFAULT '0',
+ |    `ip_address` varchar(128) DEFAULT '',
+ |    `user_agent` varchar(128) DEFAULT '',
+ |    `last_active` int(10) unsigned NOT NULL,
+ |    `contents` text NOT NULL,
+ |    PRIMARY KEY (`session_id`),
+ |    KEY `last_active` (`last_active`),
+ |    KEY `user_id` (`user_id`)
+ |  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ * --------------------------------------*/
 
 abstract class Govi_Session_Database extends Session {
 
@@ -28,13 +28,13 @@ abstract class Govi_Session_Database extends Session {
     protected $update_id;
     protected $table;
 
-    protected static $columns = array(
-        'session_id'   => ':session_id',
-        'user_id'      => ':user_id',
-        'ip_address'   => ':ip_address',
-        'user_agent'   => ':user_agent',
-        'last_active'  => ':last_active',
-        'contents'     => ':contents',
+    protected $columns = array(
+        'session_id'  => ':session_id',
+        'user_id'     => ':user_id',
+        'ip_address'  => ':ip_address',
+        'user_agent'  => ':user_agent',
+        'last_active' => ':last_active',
+        'contents'    => ':contents',
     );
 
 
@@ -116,8 +116,8 @@ abstract class Govi_Session_Database extends Session {
     {
         $data = $this->_data;
 
-        $keys = array_keys(static::$columns);
-        $vals = array_values(static::$columns);
+        $keys = array_keys($this->columns);
+        $vals = array_values($this->columns);
 
         $bindings = array(
             $vals[0] => $this->session_id,
@@ -141,13 +141,13 @@ abstract class Govi_Session_Database extends Session {
         {
             if ($this->update_id == $this->session_id)
             {
-                unset(static::$columns['session_id']);
+                unset($this->columns['session_id']);
                 unset($bindings[$vals[0]]);
             }
 
             $updates = '';
 
-            foreach (static::$columns AS $key => $val)
+            foreach ($this->columns AS $key => $val)
             {
                 $updates .= $key.' = '.$val.', ';
             }
