@@ -26,13 +26,6 @@ class Connection_Resolver implements ConnectionResolverInterface {
     protected $prefix;
 
     /**
-     * The default connection name.
-     *
-     * @var string
-     */
-    protected $name = 'default';
-
-    /**
      * Database connection instances.
      *
      * @var Illuminate\Database\Connection
@@ -61,38 +54,32 @@ class Connection_Resolver implements ConnectionResolverInterface {
      */
     public function connection($name = NULL)
     {
-        return $this->getConnection();
+        return $this->getConnection($name);
     }
 
-    /**
-     * Get the default connection name.
-     *
-     * @return string
-     */
-    public function getDefaultConnection()
-    {
-        return $this->name;
-    }
+	/**
+	 * Get the default connection name.
+	 *
+	 * @return string
+	 */
+	public function getDefaultConnection() {}
 
-    /**
-     * Set the default connection name.
-     *
-     * @param  string  $name
-     * @return void
-     */
-    public function setDefaultConnection($name = 'default')
-    {
-        $this->name = $name;
-    }
+	/**
+	 * Set the default connection name.
+	 *
+	 * @param  string  $name
+	 * @return void
+	 */
+	public function setDefaultConnection($name) {}
 
     /**
      * Get connection instance.
      *
      * @return Illuminate\Database\Connection
      */
-    protected function getConnection()
+    protected function getConnection($name = 'default')
     {
-        if ( ! isset($this->connections[$this->name]))
+        if ( ! isset($this->connections[$name]))
         {
             $connection = new \Illuminate\Database\Connection($this->pdo, '', $this->prefix);
 
@@ -117,10 +104,10 @@ class Connection_Resolver implements ConnectionResolverInterface {
 
             $connection->setQueryGrammar(new $grammar);
 
-            $this->connections[$this->name] = $connection;
+            $this->connections[$name] = $connection;
         }
 
-        return $this->connections[$this->name];
+        return $this->connections[$name];
     }
 
     /**

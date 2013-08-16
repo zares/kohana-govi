@@ -8,19 +8,19 @@
  * @copyright  (c) 2013 S.Zares
  * @license    MIT License
  *
- * --------------------------------------
- |  CREATE TABLE `sessions` (
- |    `session_id` varchar(24) NOT NULL,
- |    `user_id` int(10) unsigned NOT NULL DEFAULT '0',
- |    `ip_address` varchar(128) DEFAULT '',
- |    `user_agent` varchar(128) DEFAULT '',
- |    `last_active` int(10) unsigned NOT NULL,
- |    `contents` text NOT NULL,
- |    PRIMARY KEY (`session_id`),
- |    KEY `last_active` (`last_active`),
- |    KEY `user_id` (`user_id`)
- |  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
- * --------------------------------------*/
+ * -----------------------------------------
+ *  CREATE TABLE `sessions` (
+ *    `session_id` varchar(24) NOT NULL,
+ *    `user_id` int(10) unsigned NOT NULL DEFAULT '0',
+ *    `ip_address` varchar(128) DEFAULT '',
+ *    `user_agent` varchar(128) DEFAULT '',
+ *    `last_active` int(10) unsigned NOT NULL,
+ *    `contents` text NOT NULL,
+ *    PRIMARY KEY (`session_id`),
+ *    KEY `last_active` (`last_active`),
+ *    KEY `user_id` (`user_id`)
+ *  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+ * -----------------------------------------*/
 
 abstract class Govi_Session_Database extends Session {
 

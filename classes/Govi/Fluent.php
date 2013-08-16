@@ -12,18 +12,11 @@
 abstract class Govi_Fluent {
 
     /**
-     * Database config group.
-     *
-     * @var string
-     */
-    protected static $group = 'default';
-
-    /**
-     * Database connection instance.
+     * Database connection instances.
      *
      * @var \Illuminate\Database\Connection
      */
-    protected static $connection;
+    protected static $connections = array();
 
     /**
     * Dynamically pass methods to the default connection.
@@ -34,26 +27,27 @@ abstract class Govi_Fluent {
     */
     public static function __callStatic($method, $parameters)
     {
-        if ( ! isset(static::$connection))
-        {
-            static::getConnection();
-        }
-
-        return call_user_func_array(array(static::$connection, $method), $parameters);
+        return call_user_func_array(array(static::connection(), $method), $parameters);
     }
 
     /**
-     * Get a database connection instance.
-     *
-     * @return Illuminate\Database\Connection
-     */
-    protected static function getConnection()
+    * Get a database connection instance.
+    *
+    * @param  string  $name  Connection name
+    * @return \Illuminate\Database\Connection
+    */
+    public static function connection($name = 'default')
     {
-        $config = Kohana::$config->load('govi')->{static::$group};
+        if ( ! isset(static::$connections[$name]))
+        {
+            $config = Kohana::$config->load('govi')->$name;
 
-        $resolver = new Connection_Resolver($config);
+            $resolver = new Connection_Resolver($config);
 
-        static::$connection = $resolver->connection();
+            static::$connections[$name] = $resolver->connection($name);
+        }
+
+        return static::$connections[$name];
     }
 
 }
