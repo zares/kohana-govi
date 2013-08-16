@@ -5,45 +5,21 @@ use \Illuminate\Database\ConnectionResolverInterface;
 class Connection_Resolver implements ConnectionResolverInterface {
 
     /**
-     * The PDO instance.
+     * The database connection configuration options.
      *
-     * @var PDO
+     * @var array
      */
-    protected $pdo;
+    protected $config = array();
 
     /**
-     * The PDO driver name.
+     * Constructs a new connection resolver.
      *
-     * @var string
-     */
-    protected $driver;
-
-    /**
-     * The table prefix.
-     *
-     * @var string
-     */
-    protected $prefix;
-
-    /**
-     * Database connection instances.
-     *
-     * @var Illuminate\Database\Connection
-     */
-    protected $connections = array();
-
-    /**
-     * Create a new connection resolver.
-     *
-     * @param  PDO     $pdo
-     * @param  string  $prefix
+     * @param  array $config
      * @return void
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
-        $this->driver = $config['driver'];
-        $this->prefix = $config['prefix'];
-        $this->pdo    = $this->db($config)->connect($config);
+        $this->config = $config;
     }
 
     /**
@@ -54,60 +30,59 @@ class Connection_Resolver implements ConnectionResolverInterface {
      */
     public function connection($name = NULL)
     {
-        return $this->getConnection($name);
+        return $this->getConnection();
     }
 
-	/**
-	 * Get the default connection name.
-	 *
-	 * @return string
-	 */
-	public function getDefaultConnection() {}
+    /**
+     * Get the default connection name.
+     *
+     * @return string
+     */
+    public function getDefaultConnection() {}
 
-	/**
-	 * Set the default connection name.
-	 *
-	 * @param  string  $name
-	 * @return void
-	 */
-	public function setDefaultConnection($name) {}
+    /**
+     * Set the default connection name.
+     *
+     * @param  string  $name
+     * @return void
+     */
+    public function setDefaultConnection($name) {}
 
     /**
      * Get connection instance.
      *
      * @return Illuminate\Database\Connection
      */
-    protected function getConnection($name = 'default')
+    protected function getConnection()
     {
-        if ( ! isset($this->connections[$name]))
+        $driver = $this->config['driver'];
+
+        $pdo = $this->db($driver)->connect($this->config);
+
+        $connection = new \Illuminate\Database\Connection($pdo, '', $this->config['prefix']);
+
+        switch ($driver)
         {
-            $connection = new \Illuminate\Database\Connection($this->pdo, '', $this->prefix);
-
-            switch ($this->driver)
-            {
-                case 'mysql':
-                    $grammar = '\Illuminate\Database\Query\Grammars\MySqlGrammar';
-                    break;
-                case 'pgsql':
-                    $grammar = '\Illuminate\Database\Query\Grammars\PostgresGrammar';
-                    break;
-                case 'sqlsrv':
-                    $grammar = '\Illuminate\Database\Query\Grammars\SqlServerGrammar';
-                    break;
-                case 'sqlite':
-                    $grammar = '\Illuminate\Database\Query\Grammars\SQLiteGrammar';
-                    break;
-                default:
-                    throw new \InvalidArgumentException("Cannot determine grammar to use based on {$this->driver}.");
-                    break;
-            }
-
-            $connection->setQueryGrammar(new $grammar);
-
-            $this->connections[$name] = $connection;
+            case 'mysql':
+                $grammar = '\Illuminate\Database\Query\Grammars\MySqlGrammar';
+                break;
+            case 'pgsql':
+                $grammar = '\Illuminate\Database\Query\Grammars\PostgresGrammar';
+                break;
+            case 'sqlsrv':
+                $grammar = '\Illuminate\Database\Query\Grammars\SqlServerGrammar';
+                break;
+            case 'sqlite':
+                $grammar = '\Illuminate\Database\Query\Grammars\SQLiteGrammar';
+                break;
+            default:
+                throw new \InvalidArgumentException("Cannot determine grammar to use based on {$driver}.");
+                break;
         }
 
-        return $this->connections[$name];
+        $connection->setQueryGrammar(new $grammar);
+
+        return $connection;
     }
 
     /**
@@ -116,14 +91,14 @@ class Connection_Resolver implements ConnectionResolverInterface {
      * @param  array  $config
      * @return \Illuminate\Database\Connectors\ConnectorInterface
      */
-    protected function db(array $config)
+    protected function db($driver)
     {
-        if ( ! isset($config['driver']))
+        if ( ! isset($driver))
         {
             throw new \InvalidArgumentException("A driver must be specified.");
         }
 
-        switch ($config['driver'])
+        switch ($driver)
         {
             case 'mysql':
                 return new \Illuminate\Database\Connectors\MySqlConnector;
@@ -135,7 +110,7 @@ class Connection_Resolver implements ConnectionResolverInterface {
                 return new \Illuminate\Database\Connectors\SqlServerConnector;
         }
 
-        throw new \InvalidArgumentException("Unsupported driver [{$config['driver']}]");
+        throw new \InvalidArgumentException("Unsupported driver [{$driver}]");
     }
 
 }

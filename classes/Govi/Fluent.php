@@ -44,10 +44,23 @@ abstract class Govi_Fluent {
 
             $resolver = new Connection_Resolver($config);
 
-            static::$connections[$name] = $resolver->connection($name);
+            static::$connections[$name] = $resolver->connection();
         }
 
         return static::$connections[$name];
+    }
+
+    /**
+     * Reconnect to the given database.
+     *
+     * @param  string  $name  Connection name
+     * @return \Illuminate\Database\Connection
+     */
+    public static function reconnect($name = 'default')
+    {
+        unset(static::$connections[$name]);
+
+        return static::connection($name);
     }
 
 }
