@@ -1,4 +1,4 @@
-kohana-govi
+kohana-ormi
 ===========
 
-Kohana Govi Module
+Kohana ORMi Module
